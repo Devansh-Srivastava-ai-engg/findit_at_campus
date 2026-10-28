@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Centralized campus lost and found directory for students and staff.">
+  <title>FindIt @ Campus — Lost & Found Directory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="FindIt at Campus Home">
+        <span class="brand-badge">F</span>
+        <span class="brand-text">FindIt<strong>@Campus</strong></span>
+      </a>
+
+      <div class="topbar-search-hint" aria-hidden="true">
+        <span>Press</span> <kbd>/</kbd> <span>to search directory</span>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="system-status" id="systemStatus" title="Database status">
+          <span class="status-dot"></span>
+          <span class="status-text">Connected</span>
+        </div>
+        <button class="btn btn-primary" id="openReportModalBtn">
+          <span>+ Report Item</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-container">
+    <section class="dashboard-header">
+      <div class="header-content">
+        <h1>Campus Lost & Found</h1>
+        <p>Community bulletin for misplaced student IDs, gear, books, and electronics across campus facilities with photo verification.</p>
+      </div>
+
+      <div class="metrics-bar" aria-label="Directory statistics">
+        <div class="metric-card">
+          <span class="metric-label">Total Logs</span>
+          <span class="metric-value" id="statTotal">—</span>
+        </div>
+        <div class="metric-card text-danger">
+          <span class="metric-label">Active Lost</span>
+          <span class="metric-value" id="statLost">—</span>
+        </div>
+        <div class="metric-card text-info">
+          <span class="metric-label">Unclaimed Found</span>
+          <span class="metric-value" id="statFound">—</span>
+        </div>
+        <div class="metric-card text-success">
+          <span class="metric-label">Returned / Claimed</span>
+          <span class="metric-value" id="statReturned">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="controls-card">
+      <div class="search-row">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+          </svg>
+          <input type="search" id="searchInput" placeholder="Search by item, hall, contact, or student ID..." autocomplete="off" spellcheck="false">
+          <kbd class="shortcut-key" id="searchKbd">/</kbd>
+        </div>
+
+        <div class="filter-controls">
+          <div class="segmented-control" role="group" aria-label="Filter by report type">
+            <button class="segment-btn active" data-type="all">All</button>
+            <button class="segment-btn" data-type="lost">Lost</button>
+            <button class="segment-btn" data-type="found">Found</button>
+          </div>
+
+          <div class="select-wrapper">
+            <select id="categorySelect" aria-label="Filter by category">
+              <option value="all">All Categories</option>
+              <option value="ID & Cards">ID & Cards</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Books & Notes">Books & Notes</option>
+              <option value="Bags & Bottles">Bags & Bottles</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="select-wrapper">
+            <select id="statusSelect" aria-label="Filter by resolution status">
+              <option value="all">Status: All</option>
+              <option value="active">Active / Unclaimed</option>
+              <option value="returned">Claimed & Verified</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-meta-bar">
+        <span class="results-count" id="resultsCount">Loading records...</span>
+        <button class="btn-link hidden" id="resetFiltersBtn">Reset filters</button>
+      </div>
+    </section>
+
+    <!-- Skeletons shown during fetch -->
+    <section class="items-grid" id="itemsGrid" aria-live="polite">
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    </section>
+
+    <!-- Empty state -->
+    <div class="empty-state-box hidden" id="emptyState">
+      <div class="empty-state-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="36" height="36" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+      <h3 id="emptyStateTitle">No items match your query</h3>
+      <p id="emptyStateDesc">Try adjusting your keywords, switching categories, or post a new report.</p>
+      <div class="empty-state-actions">
+        <button class="btn btn-secondary" id="emptyResetBtn">Clear active filters</button>
+        <button class="btn btn-primary" id="emptyReportBtn">+ Post new record</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span>FindIt@Campus</span>
+        <span class="footer-dot">·</span>
+        <span>Secure campus lost & found directory with ID audit logging</span>
+      </div>
+      <div class="footer-right">
+        <span>SQLite persistent storage</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Report Item Modal -->
+  <div class="modal-overlay hidden" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="modalHeading">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalHeading">Post a Lost or Found Item</h2>
+          <p class="modal-sub">Log details directly to the campus database so staff and peers can reference it.</p>
+        </div>
+        <button class="modal-close-btn" id="closeModalBtn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <form id="reportForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="itemType">Report Type <span class="req">*</span></label>
+            <select id="itemType" required>
+              <option value="lost">Lost (I misplaced something)</option>
+              <option value="found">Found (I picked up an item)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="itemCategory">Category <span class="req">*</span></label>
+            <select id="itemCategory" required>
+              <option value="" disabled selected>Select category</option>
+              <option value="ID & Cards">ID & Cards</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Books & Notes">Books & Notes</option>
+              <option value="Bags & Bottles">Bags & Bottles</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Other">Other</option>
+            </select>
+            <span class="field-error" id="categoryError"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="itemName">Item Name <span class="req">*</span></label>
+          <input type="text" id="itemName" maxlength="70" placeholder="e.g. Lenovo ThinkPad USB-C 65W Charger" required>
+          <span class="field-error" id="nameError"></span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="itemLocation">Specific Location <span class="req">*</span></label>
+            <input type="text" id="itemLocation" maxlength="80" placeholder="e.g. Block C, Computer Lab 3, Row 4" required>
+            <span class="field-error" id="locationError"></span>
+          </div>
+          <div class="form-group">
+            <label for="itemDate">Incident Date <span class="req">*</span></label>
+            <input type="date" id="itemDate" required>
+            <span class="field-error" id="dateError"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="itemContact">Contact Information / Drop-off Desk <span class="req">*</span></label>
+          <input type="text" id="itemContact" maxlength="120" placeholder="e.g. rahul.cs25@campus.edu or Left at Library Desk Counter 1" required>
+          <span class="field-error" id="contactError"></span>
+          <span class="field-hint">Specify your email, phone, or campus drop-off office where the item was left.</span>
+        </div>
+
+        <!-- Photo Upload Dropzone -->
+        <div class="form-group">
+          <label>Item Photo <span class="field-opt">(Optional)</span></label>
+          <div class="photo-dropzone" id="photoDropzone">
+            <input type="file" id="itemPhotoFile" accept="image/*" class="sr-only">
+            <div class="photo-prompt" id="photoPrompt">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <span>Click or tap to upload photo (supports phone camera)</span>
+              <small>Auto-compressed for fast loading</small>
+            </div>
+            <div class="photo-preview-box hidden" id="photoPreviewBox">
+              <img id="photoPreviewImg" src="" alt="Item photo preview">
+              <button type="button" class="btn-remove-photo" id="removePhotoBtn" title="Remove photo">&times;</button>
+            </div>
+          </div>
+          <input type="hidden" id="itemPhotoData">
+        </div>
+
+        <div class="form-group">
+          <label for="itemDescription">Description & Distinguishing Marks <span class="req">*</span></label>
+          <textarea id="itemDescription" rows="3" maxlength="300" placeholder="Include color, brand, stickers, or specific scratches. Avoid sensitive data like card numbers." required></textarea>
+          <span class="field-error" id="descError"></span>
+        </div>
+
+        <div class="form-callout">
+          <strong>Notice:</strong> When someone claims this item, they must provide their College ID Card and contact details to verify ownership.
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitReportBtn">Submit Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Claim & Verification Modal -->
+  <div class="modal-overlay hidden" id="claimModal" role="dialog" aria-modal="true" aria-labelledby="claimModalHeading">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="claimModalHeading">Verify Identity & Claim Item</h2>
+          <p class="modal-sub">To ensure items reach their rightful owners, provide your verified college identification before collection.</p>
+        </div>
+        <button class="modal-close-btn" id="closeClaimModalBtn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <form id="claimForm" novalidate>
+        <input type="hidden" id="claimItemId">
+
+        <div class="claim-summary-card" id="claimItemSummary">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="claimantName">Claimant Full Name <span class="req">*</span></label>
+            <input type="text" id="claimantName" maxlength="60" placeholder="e.g. Rohan Verma" required>
+            <span class="field-error" id="claimNameError"></span>
+          </div>
+          <div class="form-group">
+            <label for="claimantId">College ID Card / Roll No. <span class="req">*</span></label>
+            <input type="text" id="claimantId" maxlength="40" placeholder="e.g. 23CS089 or ID-99824" required>
+            <span class="field-error" id="claimIdError"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="claimantContact">Phone Number or Student Email <span class="req">*</span></label>
+          <input type="text" id="claimantContact" maxlength="100" placeholder="e.g. rohan.v@campus.edu or 9876543210" required>
+          <span class="field-error" id="claimContactError"></span>
+          <span class="field-hint">Used by facility supervisors or the finder to cross-check ownership during physical pickup.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="claimProof">Proof of Ownership / Distinguishing Feature <span class="req">*</span></label>
+          <textarea id="claimProof" rows="2" maxlength="200" placeholder="e.g. Laptop sticker placement, passcode pattern, lockscreen wallpaper, or initials on the lanyard." required></textarea>
+          <span class="field-error" id="claimProofError"></span>
+        </div>
+
+        <div class="form-group">
+          <label>Claimant Verification Photo <span class="field-opt">(Optional)</span></label>
+          <div class="photo-dropzone" id="claimPhotoDropzone">
+            <input type="file" id="claimantPhotoFile" accept="image/*" class="sr-only">
+            <div class="photo-prompt" id="claimPhotoPrompt">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              <span>Attach student ID card photo or selfie holding ID</span>
+              <small>Helps staff confirm physical pickup matches the claim</small>
+            </div>
+            <div class="photo-preview-box hidden" id="claimPhotoPreviewBox">
+              <img id="claimPhotoPreviewImg" src="" alt="Claimant photo preview">
+              <button type="button" class="btn-remove-photo" id="removeClaimPhotoBtn" title="Remove photo">&times;</button>
+            </div>
+          </div>
+          <input type="hidden" id="claimantPhotoData">
+        </div>
+
+        <div class="form-callout callout-security">
+          <strong>Security Protocol:</strong> Your Student ID is recorded in the permanent audit ledger. Making false claims or picking up items belonging to other students is subject to campus disciplinary action.
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelClaimModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitClaimBtn">Confirm ID & Claim Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div class="modal-overlay hidden" id="lightboxModal" role="dialog" aria-modal="true" aria-label="Photo View">
+    <div class="lightbox-container">
+      <button class="lightbox-close-btn" id="closeLightboxBtn" aria-label="Close photo view">&times;</button>
+      <img id="lightboxImg" src="" alt="Enlarged lost or found item photo">
+      <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+  </div>
+
+  <!-- In-app Toast Banner -->
+  <div class="toast-notice hidden" id="toastNotice" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

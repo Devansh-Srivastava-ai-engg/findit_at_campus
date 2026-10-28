@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+FindIt_at_Campus/node_modules/
+
+# Environment files
+.env
+.env.local
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Microsoft Office temporary lock files
+~$*
+
+# Temporary test/browser run profiles and logs
+report_build/edge-*
+report_build/template-*
+report_build/*.log
+
+# Operating system files
+Thumbs.db
+.DS_Store
