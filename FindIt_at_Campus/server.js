@@ -2,15 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-// Prefer native node:sqlite (Node 22.5+) to avoid node-gyp build dependencies on Windows.
+// Prefer better-sqlite3 for maximum compatibility across environments, fallback to native node:sqlite
 let Database;
 try {
-  Database = require('node:sqlite').DatabaseSync;
+  Database = require('better-sqlite3');
 } catch {
   try {
-    Database = require('better-sqlite3');
+    Database = require('node:sqlite').DatabaseSync;
   } catch (err) {
-    console.error('SQLite unavailable. Requires Node >= 22.5.0 or better-sqlite3 installed.');
+    console.error('SQLite unavailable. Requires better-sqlite3 or Node >= 22.5.0 with --experimental-sqlite.');
     process.exit(1);
   }
 }

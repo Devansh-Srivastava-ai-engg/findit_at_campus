@@ -10,9 +10,10 @@
     "test": "node test_api.js"
   },
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=18.0.0"
   },
   "dependencies": {
+    "better-sqlite3": "^13.0.3",
     "cors": "^2.8.5",
     "express": "^4.21.2"
   }
