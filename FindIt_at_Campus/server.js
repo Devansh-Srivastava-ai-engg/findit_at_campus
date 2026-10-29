@@ -2,15 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-// Prefer better-sqlite3 for maximum compatibility across environments, fallback to native node:sqlite
+// Prefer native node:sqlite (built into Node 22.5+) with zero native addons
 let Database;
 try {
-  Database = require('better-sqlite3');
-} catch {
+  Database = require('node:sqlite').DatabaseSync;
+} catch (err) {
   try {
-    Database = require('node:sqlite').DatabaseSync;
-  } catch (err) {
-    console.error('SQLite unavailable. Requires better-sqlite3 or Node >= 22.5.0 with --experimental-sqlite.');
+    Database = require('better-sqlite3');
+  } catch (fallbackErr) {
+    console.error('SQLite unavailable. Node requires --experimental-sqlite flag (Node >= 22.5.0).');
     process.exit(1);
   }
 }
