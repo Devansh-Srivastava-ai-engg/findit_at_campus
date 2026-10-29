@@ -1,7 +1,9 @@
 (() => {
-  const API_BASE = (window.location.hostname === 'localhost' && window.location.port === '3000')
-    ? '/api'
-    : 'http://localhost:3000/api';
+  // Use relative '/api' on production or when served directly from Express.
+  // Fall back to 'http://localhost:3000/api' only if previewed via Live Server (port 5500/5501).
+  const API_BASE = (window.location.port === '5500' || window.location.port === '5501')
+    ? 'http://localhost:3000/api'
+    : '/api';
 
   const categoryIcons = {
     'ID & Cards': '🪪',
